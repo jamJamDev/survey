@@ -10,7 +10,9 @@ var Survey = connection.define('surveys',{
 		surveyQuestion: Sequelize.TEXT,
 		option1: Sequelize.TEXT,
 		option2: Sequelize.TEXT,
-		author: Sequelize.TEXT
+		author: Sequelize.TEXT,
+		option1Count: Sequelize.INTEGER,
+		option2Count: Sequelize.INTEGER,
 	}, {
 		timestamps: false
 	}
@@ -18,15 +20,16 @@ var Survey = connection.define('surveys',{
 
 router.get('/', function(req, res, next) {
 	Survey.findAll().then(function(result){
-		console.log("RENDER");
-		console.log(result[0].dataValues);
+		var min = Math.ceil(0),
+			max = Math.floor(result.length),
+			rand = Math.floor(Math.random() * (max - min)) + min;
 	    res.render("index", {
 	    	title: 'Survey', 
   			test: 'TEST',
-  			surveyID: result[0].dataValues.idsurveys
-  			randomQuestion: result[0].dataValues.surveyQuestion,
-  			option1: result[0].dataValues.option1,
-  			option2: result[0].dataValues.option2
+  			surveyID: result[rand].dataValues.idsurveys,
+  			randomQuestion: result[rand].dataValues.surveyQuestion,
+  			option1: result[rand].dataValues.option1,
+  			option2: result[rand].dataValues.option2
 	    });
 	});
 });

@@ -11,7 +11,7 @@ var users = require('./routes/users');
 var admin = require('./routes/admin');
 
 var app = express();
-//TODO look at this connection shit
+
 var connection = new Sequelize('surveySystem', 'root', 'house1');
 var Survey = connection.define('surveys',{
 		idsurveys: {
@@ -80,21 +80,29 @@ app.get('/admin', function(req, res){
 });
 
 app.post('/submitAnswer', function(req, res){
-	console.log(req.body);
 	Survey.findOne({
 		where:{idsurveys: req.body.target}
 	}).then(function(result){
 		console.log(result);
-		/*if(req.body.option1){
+		if(req.body.option1){
 			Survey.update({
-				{where: {idsurveys: req.body.target}}
-				{option1: req.body}
+				option1Count: result.dataValues.option1Count + 1,
+				numTimesTaken: result.numTimesTaken + 1
+			},{
+				where: {idsurveys: req.body.target}
+			}).then(function(){
+				console.log("UPDATED");
 			})
 		} else if(req.body.option2){
 			Survey.update({
-				{where: {idsurveys: req.body.target}}
+				option2Count: result.dataValues.option2Count + 1,
+				numTimesTaken: result.numTimesTaken + 1
+			},{
+				where: {idsurveys: req.body.target}
+			}).then(function(){
+				console.log("UPDATED");
 			})
-		}*/
+		}
 	})
 });
 
@@ -108,7 +116,10 @@ app.post('/submitQA', function(req, res){
 			surveyQuestion: req.body.question,
 			option1: req.body.option1,
 			option2: req.body.option2,
-			author: "temp author"
+			author: "temp author",
+			option1Count: 0,
+			option2Count: 0,
+			numTimesTaken: 0
 		});
 		survey.save();
 	});
