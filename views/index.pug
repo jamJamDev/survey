@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  h1= title
+  h1= randomQuestion
+  form(name="answer-question", action="/submitAnswer", method="post")
+      input(type="hidden" name="target" value= surveyID)
+      div.input
+        input(type="radio", name="option1", value="1")
+        label= option1
+      br
+      div.input
+        input(type="radio", name="option2", value="2")
+        label= option2
+      br
+      div.actions
+        input(type="submit", value="Answer")
+  br
+  br
+  a(href="/admin") ADMIN?

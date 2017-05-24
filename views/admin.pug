@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  form(name="add-survey-question", action="/submitQA", method="post")
+        div.input
+            span.label Question
+            br
+            textarea(name="question", cols="40", rows="5")
+        div.input
+            span.label Option 1: 
+            input(type="text", name="option1")
+        br
+        div.input
+            span.label Option 2: 
+            input(type="text", name="option2")
+        br
+        div.actions
+            input(type="submit", value="add")
+        
