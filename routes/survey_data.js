@@ -19,24 +19,16 @@ var Survey = connection.define('surveys',{
 	}
 );
 
+/* GET home page. */
 router.get('/', function(req, res, next) {
-	Survey.findAll().then(function(result){
-		var min = Math.ceil(0),
-			max = Math.floor(result.length),
-			rand = Math.floor(Math.random() * (max - min)) + min;
-	    res.render("index", {
-	    	title: 'Survey', 
-  			test: 'TEST',
-  			surveyID: result[rand].dataValues.surveyID,
-  			randomQuestion: result[rand].dataValues.surveyQuestion,
-  			option1: result[rand].dataValues.option1,
-  			option2: result[rand].dataValues.option2
+  Survey.findAll().then(function(results){
+	    res.render("survey_data", {
+	    	surveys: results
 	    });
 	});
 });
 
-router.post('/', function (req, res, next) {
-    console.log(req.body.description);
+router.post('/', function(req, res, next){
 });
 
 module.exports = router;

@@ -5,16 +5,18 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var crypto = require('crypto');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
 var admin = require('./routes/admin');
+var admin_survey = require('./routes/admin_survey');
+var survey_data = require('./routes/survey_data');
 
 var app = express();
 
 var connection = new Sequelize('surveySystem', 'root', 'house1');
 var Survey = connection.define('surveys',{
-		idsurveys: {
+		surveyID: {
 			type: Sequelize.INTEGER,
 			primaryKey: true
 		},
@@ -44,6 +46,18 @@ var Survey = connection.define('surveys',{
 	}
 );
 
+var Admin = connection.define('admins',{
+		adminid: {
+			type: Sequelize.INTEGER,
+			primaryKey: true
+		},
+		username: Sequelize.TEXT,
+		password: Sequelize.TEXT
+	}, {
+		timestamps: false
+	}
+);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -57,16 +71,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
 app.use('/admin', admin);
+app.use('/survey_data', survey_data);
 
 connection.sync().then(function(req, res){	
 	Survey.findAll().then(function(result){
-		if(result.length === 0){
+		if(!result){
 			console.log("ADD SURVVEY THROUGH ADMIN PAGE");
+			res.send(500, 'Invalid Login');
 		} else{
-
-			//This doesn't seem to work, maybe add a "start survey" button?
 			console.log(result[0].dataValues);
 
 		}
@@ -77,6 +90,10 @@ connection.sync().then(function(req, res){
 
 app.get('/admin', function(req, res){
 	res.render('admin');
+});
+
+app.get('/survey_data', function(req, res){
+	res.render('survey_data');
 });
 
 app.post('/submitAnswer', function(req, res){
@@ -106,13 +123,33 @@ app.post('/submitAnswer', function(req, res){
 	})
 });
 
+app.post('/login', function(req, res){
+	var sha256Hash = crypto.createHash('sha256');
+	sha256Hash.update(req.body.password);
+	var hexHash = sha256Hash.digest('hex');
+	Admin.findOne({
+		where:{
+			username: req.body.username,
+			password: hexHash
+		}
+	}).then(function(result){
+		console.log(result);
+		if(result === null){
+			console.log("INVLIAD LOGIN");
+			res.send(500, 'Invalid Login');
+		} else{
+			res.render('admin_survey');
+		}
+	});
+});
+
 app.post('/submitQA', function(req, res){
 	var min = Math.ceil(2),
 		max = Math.floor(1000),
 		randID = Math.floor(Math.random() * (max - min)) + min;
 	connection.sync().then(function(){
 		var survey = Survey.build({
-			idsurveys: randID,
+			surveyID: randID,
 			surveyQuestion: req.body.question,
 			option1: req.body.option1,
 			option2: req.body.option2,

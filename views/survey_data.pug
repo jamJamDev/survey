@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1 Survey Data
+    ul
+        each survey in surveys
+            li "#{survey.surveyQuestion}" has been answered #{survey.numTimesTaken} times. "#{survey.option1}" was selected #{survey.option1Count} times and "#{survey.option2}" was selected #{survey.option2Count} times.

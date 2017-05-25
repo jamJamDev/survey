@@ -8,6 +8,7 @@ This is a survey using express, node, &amp; mysql (sequalize).
 3. Make sure MySql is running!
 
 ## TODO: FIX MD LIST
+
 -Secure the admin dashboard from guest users
 -Prevent guest from recieving the same survey twice
 -Add naviation button, so admin can easily navigate back to take surveys
