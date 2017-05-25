@@ -4,6 +4,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var setCookie = require('set-cookie-parser');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
 
@@ -11,6 +12,9 @@ var index = require('./routes/index');
 var admin = require('./routes/admin');
 var admin_survey = require('./routes/admin_survey');
 var survey_data = require('./routes/survey_data');
+var cookieObj = {
+	surveyIndexes: []
+};
 
 var app = express();
 
@@ -62,8 +66,8 @@ var Admin = connection.define('admins',{
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cookieParser());
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -98,28 +102,52 @@ app.get('/survey_data', function(req, res){
 
 app.post('/submitAnswer', function(req, res){
 	Survey.findOne({
-		where:{idsurveys: req.body.target}
+		where:{surveyID: req.body.target}
 	}).then(function(result){
-		console.log(result);
+		var params = {
+				numTimesTaken: result.numTimesTaken + 1
+			};
 		if(req.body.option1){
-			Survey.update({
-				option1Count: result.dataValues.option1Count + 1,
-				numTimesTaken: result.numTimesTaken + 1
-			},{
-				where: {idsurveys: req.body.target}
-			}).then(function(){
-				console.log("UPDATED");
-			})
+			params.option1Count = result.dataValues.option1Count + 1;
 		} else if(req.body.option2){
-			Survey.update({
-				option2Count: result.dataValues.option2Count + 1,
-				numTimesTaken: result.numTimesTaken + 1
-			},{
-				where: {idsurveys: req.body.target}
-			}).then(function(){
-				console.log("UPDATED");
-			})
+			params.option2Count = result.dataValues.option2Count + 1;
 		}
+
+		Survey.update(params,{
+			where: {surveyID: req.body.target}
+		}).then(function(){
+			Survey.findAll().then(function(result){
+				var min = Math.ceil(0),
+					max = Math.floor(result.length),
+					rand = Math.floor(Math.random() * (max - min)) + min,
+					count = 0;
+				req.cookies = cookieObj;
+				//this can definately be imporoved, not a very good strat
+				while(req.cookies.surveyIndexes.indexOf(rand) > -1){
+					rand = Math.floor(Math.random() * (max - min)) + min;
+					count++;
+					//added an extra param to break out after loops 50 times, just in case
+					//I would like to test more & make a better solution, quick fix
+					if(result.length === req.cookies.surveyIndexes.length || count === 50){
+						res.send(500, 'You answered all the surveys! :)');
+						break;
+					}
+				}
+				cookieObj.surveyIndexes.push(rand);
+				req.cookies = cookieObj;
+				console.log(req.cookies.surveyIndexes);
+
+			    res.render("index", {
+			    	title: 'Survey', 
+		  			test: 'TEST',
+		  			surveyID: result[rand].dataValues.surveyID,
+		  			randomQuestion: result[rand].dataValues.surveyQuestion,
+		  			option1: result[rand].dataValues.option1,
+		  			option2: result[rand].dataValues.option2
+			    });
+			});
+		});
+
 	})
 });
 
@@ -158,7 +186,9 @@ app.post('/submitQA', function(req, res){
 			option2Count: 0,
 			numTimesTaken: 0
 		});
-		survey.save();
+		survey.save().then(function(){
+			res.render('admin_survey');
+		});
 	});
 });
 

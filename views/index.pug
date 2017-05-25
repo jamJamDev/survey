@@ -2,7 +2,7 @@ extends layout
 
 block content
   h1= title
-  h1= randomQuestion
+  h2= randomQuestion
   form(name="answer-question", action="/submitAnswer", method="post")
       input(type="hidden" name="target" value= surveyID)
       div.input

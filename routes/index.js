@@ -24,6 +24,8 @@ router.get('/', function(req, res, next) {
 		var min = Math.ceil(0),
 			max = Math.floor(result.length),
 			rand = Math.floor(Math.random() * (max - min)) + min;
+		console.log("RESULT RANDOM QUeSTION: ");
+		console.log(result[rand].dataValues.surveyQuestion);
 	    res.render("index", {
 	    	title: 'Survey', 
   			test: 'TEST',
