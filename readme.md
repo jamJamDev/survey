@@ -25,9 +25,10 @@ Create a "surveySchema" in mysql with the following tables:
 + numTimesTaken _INT_
 
 ## TODO:
++ **Add more options to survey!!!!** (maybe make it dynamic? so user can choose to add any amount of fields they want up to like 10 maybe)
 + Add naviation button, so admin can easily navigate back to take surveys
 + Various CSS improvements (display data for admin better - build a grid or maybe even look into d3, make it not bland, etc)
 + When a survey is created, add the admin to the 'author' attribute of the survey data (can be used to show only their survey data)
-+ Improve the cookie situation
++ Improve the cookie situation (or store the info in a table?)
 + Refactoring/Cleaning
 + Include DB creation
