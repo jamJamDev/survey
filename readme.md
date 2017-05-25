@@ -28,4 +28,6 @@ Create a "surveySchema" in mysql with the following tables:
 + Add naviation button, so admin can easily navigate back to take surveys
 + Various CSS improvements (display data for admin better - build a grid or maybe even look into d3, make it not bland, etc)
 + When a survey is created, add the admin to the 'author' attribute of the survey data (can be used to show only their survey data)
-+ improve the cookie situation
++ Improve the cookie situation
++ Refactoring/Cleaning
++ Include DB creation
